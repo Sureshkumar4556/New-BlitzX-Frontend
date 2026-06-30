@@ -9,6 +9,7 @@ type User = {
   id: string;
   name: string;
   email: string;
+  is_admin: boolean;
   created_at: string;
 };
 
@@ -39,7 +40,7 @@ export default function DashboardPage() {
   useEffect(() => {
     async function load() {
       try {
-        const meRes = await fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/me", {
+        const meRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
           credentials: "include",
         });
         if (!meRes.ok) {
@@ -49,14 +50,14 @@ export default function DashboardPage() {
         const meData = await meRes.json();
         setUser(meData);
 
-        const ordersRes = await fetch(process.env.NEXT_PUBLIC_API_URL + "/orders", {
+        const ordersRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/orders`, {
           credentials: "include",
         });
         if (ordersRes.ok) {
           const ordersData = await ordersRes.json();
           setOrders(ordersData);
         }
-      } catch (err) {
+      } catch {
         setError("Could not load your dashboard. Please try again.");
       } finally {
         setLoading(false);
@@ -66,7 +67,7 @@ export default function DashboardPage() {
   }, [router]);
 
   async function handleLogout() {
-    await fetch(process.env.NEXT_PUBLIC_API_URL + "/auth/logout", {
+    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
       method: "POST",
       credentials: "include",
     });
@@ -90,13 +91,14 @@ export default function DashboardPage() {
 
       <section className="min-h-screen px-6 pb-24 pt-32 lg:px-10">
         <div className="mx-auto max-w-5xl">
+          {/* Header */}
           <div className="flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
             <div>
               <span className="font-mono text-xs uppercase tracking-wider text-bolt-gold">
                 Dashboard
               </span>
               <h1 className="mt-2 font-display text-3xl font-extrabold text-chrome-gradient">
-                {user ? "Welcome back, " + user.name.split(" ")[0] + "." : "Welcome back."}
+                Welcome back{user ? `, ${user.name.split(" ")[0]}` : ""}.
               </h1>
               {user && (
                 <p className="mt-1 font-body text-sm text-chrome-600">{user.email}</p>
@@ -104,6 +106,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="flex gap-3">
+              {user?.is_admin && (
+                <a
+                  href="/admin"
+                  className="rounded-sm border border-bolt-gold/40 px-5 py-2.5 font-body text-sm font-semibold text-bolt-gold transition-colors hover:border-bolt-gold/70"
+                >
+                  Admin Panel
+                </a>
+              )}
               <a
                 href="/order/new"
                 className="rounded-sm bg-bolt-gradient px-5 py-2.5 font-body text-sm font-semibold text-void shadow-bolt-glow transition-transform hover:scale-[1.02]"
@@ -123,6 +133,7 @@ export default function DashboardPage() {
             <p className="mt-6 font-body text-sm text-red-400">{error}</p>
           )}
 
+          {/* Orders */}
           <div className="mt-10">
             <h2 className="font-display text-lg font-bold text-chrome-100">
               Your Orders
@@ -131,7 +142,7 @@ export default function DashboardPage() {
             {orders.length === 0 ? (
               <div className="mt-4 rounded-sm border border-white/10 bg-surface p-10 text-center">
                 <p className="font-body text-sm text-chrome-300">
-                  You have not submitted any projects yet.
+                  You haven't submitted any projects yet.
                 </p>
                 <a
                   href="/order/new"
@@ -157,10 +168,10 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <span
-                        className={
-                          "rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider " +
-                          (statusColors[order.status] || "border-white/20 text-chrome-300 bg-white/5")
-                        }
+                        className={`rounded-full border px-3 py-1 font-mono text-[10px] uppercase tracking-wider ${
+                          statusColors[order.status] ||
+                          "border-white/20 text-chrome-300 bg-white/5"
+                        }`}
                       >
                         {order.status.replace("_", " ")}
                       </span>

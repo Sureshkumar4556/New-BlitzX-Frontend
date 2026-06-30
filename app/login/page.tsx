@@ -26,7 +26,18 @@ export default function LoginPage() {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.detail || "Invalid email or password");
       }
-      router.push("/dashboard");
+
+      // Check whether this account is an admin so we can route them straight
+      // to the admin panel instead of the regular customer dashboard.
+      const meRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        credentials: "include",
+      });
+      if (meRes.ok) {
+        const me = await meRes.json();
+        router.push(me.is_admin ? "/admin" : "/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {
