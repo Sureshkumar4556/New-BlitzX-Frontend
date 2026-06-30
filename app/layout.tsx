@@ -24,6 +24,14 @@ export const metadata: Metadata = {
   title: "BlitzXCreatives — Building Digital. Boosting Growth.",
   description:
     "BlitzXCreatives builds websites, optimizes SEO, runs digital marketing, and powers e-commerce stores that convert.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-512.png", type: "image/png", sizes: "512x512" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export default function RootLayout({
